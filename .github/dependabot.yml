@@ -1,0 +1,16 @@
+version: 2
+
+registries:
+  java-private-library-maven:
+    type: maven-repository
+    url: https://maven.pkg.github.com/tgrall-octodemo/operation-api
+    username: octodemobot
+    password: ${{secrets.MY_GITHUB_PERSONAL_TOKEN}}
+
+updates:
+  - package-ecosystem: maven
+    directory: "/"
+    registries:
+      - "java-private-library-maven"
+    schedule:
+      interval: daily
