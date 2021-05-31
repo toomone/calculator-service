@@ -51,6 +51,12 @@ jobs:
         run: |
           mvn -B package --file pom.xml
 
+      - name: Save artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: calculator-service.jar
+          path: target/calculator-service-*.jar          
+
   build_container:
     name: Build Container
 
@@ -69,7 +75,7 @@ jobs:
       - name: Get Jar file artifact
         uses: actions/download-artifact@v2
         with:
-          name: standalone-ubuntu-20.04-11.jar
+          name: calculator-service.jar
           path: target
 
       - name: Create container image name
