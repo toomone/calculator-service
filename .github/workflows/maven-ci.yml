@@ -10,6 +10,13 @@ jobs:
     name: Build with Maven
     runs-on: ubuntu-latest
 
+    # We need to share details across job boundaries, expose the step outs at the job level
+    outputs:
+      build_version: ${{ steps.maven_build.outputs.version }}
+      container_name: ${{ steps.build_params.outputs.container_name }}
+      container_owner: ${{ steps.build_params.outputs.container_owner }}
+      container_registry: ghcr.io
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,6 +29,20 @@ jobs:
           server-id: github
           server-username: MAVEN_USERNAME
           server-password: MAVEN_GHPR_PASSWORD
+
+      # Utilize caching of the resolved plugins and dependencies from previous Maven builds to provide
+      # faster builds when dependencies have not changed.
+      - name: Cache Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          # Hash on the POM file as that would need to change to modify the dependencies or plugins in use
+          key: mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            mvn-${{ matrix.java }}-${{ runner.os }}
+            mvn-${{ matrix.java }}
+            mvn-          
           
       - name: Build with Maven
         env:

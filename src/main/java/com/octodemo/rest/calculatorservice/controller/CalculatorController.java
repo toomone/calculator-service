@@ -19,4 +19,10 @@ public class CalculatorController {
         return calculatorService.addition(a,b);
     }
 
+
+    @GetMapping("/substract/{a}/{b}")
+    public int substract(@PathVariable Integer a, @PathVariable Integer b) {
+        return calculatorService.substraction(a,b);
+    }    
+
 }

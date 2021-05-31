@@ -1,0 +1,36 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calculator-service-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: calculator-service
+  template:
+    metadata:
+      labels:
+        app: calculator-service
+        commit: "1.0"
+    spec:
+      containers:
+      - name: calculator-service
+        image: ghcr.io/tgrall-octodemo/calculator-service:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calculator-service
+spec:
+  selector:
+    app: calculator-service
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+--- 
