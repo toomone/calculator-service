@@ -57,7 +57,7 @@ jobs:
           name: calculator-service.jar
           path: target/calculator-service-*.jar          
 
-  build_container:
+  build_publish_container:
     name: Build Container
 
     # Do not run this on dependabot triggered activities as it cannot read the Actions Secrets.
@@ -99,7 +99,7 @@ jobs:
 
 
   deploy_to_kubernetes:
-    needs: push_to_registry
+    needs: build_publish_container
     runs-on: ubuntu-latest
     permissions:
       contents: read
