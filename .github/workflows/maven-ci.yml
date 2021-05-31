@@ -50,3 +50,31 @@ jobs:
           MAVEN_GHPR_PASSWORD: ${{secrets.MY_GITHUB_PERSONAL_TOKEN}}
         run: |
           mvn -B package --file pom.xml
+
+  build_container:
+    name: Build Container
+
+    # Do not run this on dependabot triggered activities as it cannot read the Actions Secrets.
+    if: ${{ !(contains(github.actor, 'dependabot[bot]')) }}
+
+    runs-on: ubuntu-20.04
+
+        needs:
+      - build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get Jar file artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: standalone-ubuntu-20.04-11.jar
+          path: target
+
+      - name: Create container image name
+        id: define_container_attributes
+        run: |
+          echo ::set-output name=container_name_and_version_tag::${{ needs.build.outputs.container_name }}:${{ needs.build.outputs.build_version }}
+          echo ::set-output name=container_name::${{ needs.build.outputs.container_name }}
+          echo ::set-output name=container_version_tag::${{ needs.build.outputs.build_version }}      
