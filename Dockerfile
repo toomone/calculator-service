@@ -21,7 +21,7 @@ USER ${username}
 WORKDIR ${install_dir}
 
 # Copy the self contained jar file to the container
-COPY target/calculator-service-${VERSION}.jar calculator-service.jar
+COPY target/calculator-service.jar calculator-service.jar
 
 ENTRYPOINT ["/usr/local/openjdk-11/bin/java", "-jar", "calculator-service.jar"]
 
