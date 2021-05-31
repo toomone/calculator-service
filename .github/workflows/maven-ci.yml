@@ -15,7 +15,7 @@ env:
 jobs:
   build:
     name: Build with Maven
-    runs-on: ubuntu-latest
+    runs-on: suez
 
     steps:
       - name: Checkout
