@@ -104,7 +104,6 @@ jobs:
             revision=${{ github.sha }}
           push: true
           tags: |
-            ghcr.io/tgrall-octodemo/operation-service:1.0
             ghcr.io/${{ github.repository }}-gh-token:${{ steps.short-sha.outputs.sha }}
 
 
@@ -142,7 +141,6 @@ jobs:
 
       - name: Deploy to Dev
         id: applyDeploymentDev
-        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
             sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml  
             kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_DEV }}                          
