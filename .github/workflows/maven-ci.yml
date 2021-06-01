@@ -104,7 +104,7 @@ jobs:
             revision=${{ github.sha }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-gh-token:${{ steps.short-sha.outputs.sha }}
+            ghcr.io/${{ github.repository }}:${{ steps.short-sha.outputs.sha }}
 
 
   deploy_to_kubernetes:
