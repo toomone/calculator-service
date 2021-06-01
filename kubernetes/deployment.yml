@@ -12,11 +12,11 @@ spec:
     metadata:
       labels:
         app: calculator-service
-        commit: "SHA8"
+        commit: COMMIT_SHA
     spec:
       containers:
       - name: calculator-service
-        image: ghcr.io/tgrall-octodemo/calculator-service:1.0
+        image: ghcr.io/tgrall-octodemo/calculator-service:COMMIT_SHA
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
