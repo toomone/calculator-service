@@ -8,8 +8,8 @@ on:
 env:
   AZ_RESOURCE_GROUP: "tgrall"
   AZ_CLUSTER_NAME: "sidel-kube"
-  NAMESPACE_DEV: "demo-dev"
-  NAMESPACE_STAGING: "demo-staging"
+  NAMESPACE_DEV: "development"
+  NAMESPACE_STAGING: "staging"
   NAMESPACE_PROD: "production"
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
@@ -37,13 +37,11 @@ jobs:
         with:
           path: ~/.m2/repository
           # Hash on the POM file as that would need to change to modify the dependencies or plugins in use
-          key: mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          key: mvn-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-            mvn-${{ matrix.java }}-${{ runner.os }}
-            mvn-${{ matrix.java }}
-            mvn-          
-          
+            mvn-${{ hashFiles('**/pom.xml') }}
+            mvn-
+
       - name: Build with Maven
         env:
           MAVEN_USERNAME: octodemobot
@@ -55,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: calculator-service.jar
-          path: target/calculator-service-*.jar          
+          path: target/calculator-service-*.jar
 
   build_publish_container:
     name: Build Container
@@ -77,14 +75,14 @@ jobs:
         with:
           name: calculator-service.jar
           path: target
-    
+
       - name: Short SHA
         uses: benjlevesque/short-sha@v1.2
         id: short-sha
         with:
           length: 8
-      
-      - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV  
+
+      - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
 
       - name: GitHub Container Registry Login
         uses: docker/login-action@v1
@@ -106,22 +104,21 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ steps.short-sha.outputs.sha }}
 
-
   deploy_to_kubernetes:
     needs: build_publish_container
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    
+
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2            
+        uses: actions/checkout@v2
 
       # login to azure
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}    
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Get AKS Credentials
         id: getContext
@@ -134,13 +131,19 @@ jobs:
         id: short-sha
         with:
           length: 8
-      
-      - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV  
 
-          
+      - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
 
-      - name: Deploy to Dev
-        id: applyDeploymentDev
+      - name: Deploy to Development
+        if: ${{ github.ref != 'refs/heads/main' }}
+        id: applyDeploymentDevelopment
         run: |
-            sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml  
-            kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_PROD }}                          
+          sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
+          kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_DEV }}
+
+      - name: Deploy to Production
+        if: ${{ github.ref == 'refs/heads/main' }}
+        id: applyDeploymentProduction
+        run: |
+          sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
+          kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_PROD }}
