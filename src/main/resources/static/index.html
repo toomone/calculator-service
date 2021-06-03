@@ -112,7 +112,7 @@
             </div>
             <div class="row mt-3">
               <div class="col">
-                <button  id="substractionResult" class="w-100 btn btn-lg btn-outline-primary">Call</button>
+                <button  id="substractionButton" class="w-100 btn btn-lg btn-outline-primary">Call</button>
               </div>
               <div class="row mt-3">
                 <div class="col" >
@@ -146,7 +146,7 @@
             </div>
             <div class="row mt-3">
               <div class="col">
-                <button  id="divisionResult" class="w-100 btn btn-lg btn-outline-primary">Call</button>
+                <button  id="divisionButton" class="w-100 btn btn-lg btn-outline-primary">Call</button>
               </div>
               <div class="row mt-3">
                 <div class="col" >
@@ -193,7 +193,7 @@
     });
 
 
-    let subButton = document.getElementById('substractionResult');
+    let subButton = document.getElementById('substractionButton');
     subButton.addEventListener('click', function () {
       const valA =  parseInt(document.getElementById('subA').value);
       const valB = parseInt(document.getElementById('subB').value);
