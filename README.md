@@ -5,3 +5,5 @@
 
 
 Springboot Application that exposes the Operation API as a REST Endpoint
+
+This application is depoyed to Kubernetes (AKS) using GitHub Actions.
