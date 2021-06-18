@@ -7,7 +7,7 @@ on:
 
 env:
   AZ_RESOURCE_GROUP: "tgrall"
-  AZ_CLUSTER_NAME: "sidel-kube"
+  AZ_CLUSTER_NAME: "tug-kube"
   NAMESPACE_DEV: "development"
   NAMESPACE_STAGING: "staging"
   NAMESPACE_PROD: "production"
