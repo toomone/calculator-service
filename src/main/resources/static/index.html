@@ -198,12 +198,12 @@
       const valA =  parseInt(document.getElementById('subA').value);
       const valB = parseInt(document.getElementById('subB').value);
       fetch(`/calculator/substract/${valA}/${valB}`).then(response => response.text()).then(body => {
-        document.getElementById('substractionButton').innerHTML = body;
+        document.getElementById('substractionResult').innerHTML = body;
       });
     });
   </script>
 
-
+demo
 
   </body>
 </html>
