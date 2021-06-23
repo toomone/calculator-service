@@ -8,4 +8,7 @@ public class TranslationService {
         super();
     }
 
+	protected void finalize() {
+	}
+
 }
