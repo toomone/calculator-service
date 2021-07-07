@@ -29,11 +29,11 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.octodemo.lib</groupId>
 			<artifactId>operation-api</artifactId>
 			<version>1.0.0</version>
-		</dependency>
+		</dependency> -->
 
 	</dependencies>
 
@@ -61,7 +61,7 @@
 
 	<repositories>
 		<!-- A GitHub Packages private Maven registry -->
-		<repository>
+		<!-- <repository>
 			<id>github</id>
 			<name>GitHub Packages Maven Repository</name>
 			<url>https://maven.pkg.github.com/tgrall-octodemo/operation-api</url>
@@ -71,7 +71,7 @@
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-		</repository>
+		</repository> -->
 
 		<!-- Maven Central Repo -->
 		<repository>
