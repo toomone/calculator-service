@@ -55,5 +55,4 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ steps.create_deployment.outputs.resource_group }}
           template: ./.github/scripts/azure/aks-template.json
-          parameters: clusterName="${{  steps.create_deployment.outputs.cluster_name }}" appInsightsLocation="${{ steps.create_deployment.outputs.region }}" clusterLocation="${{ steps.create_deployment.outputs.region }}" agentCount="3" agentVMSize="Standard_B2ms" kubernetesVersion="${{ steps.create_deployment.outputs.version }}" httpApplicationRoutingEnabled="false" omsLocation="${{ steps.create_deployment.outputs.region }}" omsWorkspaceName="tgrallKubeDemo"  dnsPrefix="${{steps.create_deployment.outputs.cluster_name }}"
-{"mode":"full","isActive":false}
+          parameters: clusterName="${{  steps.create_deployment.outputs.cluster_name }}" appInsightsLocation="${{ steps.create_deployment.outputs.region }}" clusterLocation="${{ steps.create_deployment.outputs.region }}" agentCount="3" agentVMSize="Standard_B2ms" kubernetesVersion="${{ steps.create_deployment.outputs.version }}" httpApplicationRoutingEnabled="false" omsLocation="${{ steps.create_deployment.outputs.region }}" omsWorkspaceName="tug-kube"  dnsPrefix="${{steps.create_deployment.outputs.cluster_name }}" {"mode":"full","isActive":false}
