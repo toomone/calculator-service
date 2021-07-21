@@ -19,4 +19,5 @@ Cluster information:
   "region" : "West Europe"
 }
 ```
-{"mode":"full","isActive":false}
+
+---
