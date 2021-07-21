@@ -14,10 +14,8 @@ Cluster information:
 ```json
 {
   "resource_group" : "<YOUR_RESOURCE_GROUP>",
-  "cluster_name" : "<CLUSTER_NAME>",
+  "cluster_name" : "tug-kube",
   "version" : "1.19.9",
   "region" : "West Europe"
 }
 ```
-
----

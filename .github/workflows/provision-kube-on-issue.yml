@@ -1,21 +1,58 @@
----
-name: Kubernetes Provisionning
-about: Provision a Kubernetes Cluster on Azure
-title: Provision new Kubernetes Cluster
-labels: create-k8s
-assignees: ''
+name: Provision Kubernetes
 
----
+on:
+  issues:
+    types: [opened, reopened]
 
-This issue will provision a new Kubernetes Cluster on Azure (AKS).
 
-Cluster information:
+jobs:
+  create_demo_deployment:
+    if: contains(github.event.issue.labels.*.name, 'create-k8s') 
 
-```json
-{
-  "resource_group" : "<YOUR_RESOURCE_GROUP>",
-  "cluster_name" : "tug-kube",
-  "version" : "1.19.9",
-  "region" : "West Europe"
-}
-```
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug
+        uses: actions/github-script@v3
+        with:
+          script: console.log(JSON.stringify(context, null, 2));    
+
+      - name: Extract Issue Demo Specification
+        id: issue_body
+        uses: peter-murray/issue-body-parser-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_id: ${{ github.event.issue.number }}          
+
+      - name: Create GitHub Deployment
+        id: create_deployment
+        uses: actions/github-script@v3
+        env:
+          ISSUE_PAYLOAD: ${{ steps.issue_body.outputs.payload }}
+        with:          
+          script: 
+            const issuePayload = JSON.parse(process.env.ISSUE_PAYLOAD);
+            console.log(JSON.stringify(issuePayload, null, 2));
+            core.setOutput('resource_group', issuePayload.resource_group);
+            core.setOutput('cluster_name', issuePayload.cluster_name);
+            core.setOutput('region', issuePayload.region);
+            core.setOutput('version', issuePayload.version);
+
+
+      # login to azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}            
+
+      - uses: actions/checkout@v2
+    
+      - name: Create AKS Cluster
+        uses: azure/arm-deploy@v1
+        id: deploy
+        with:
+          scope: resourcegroup
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ steps.create_deployment.outputs.resource_group }}
+          template: ./.github/scripts/azure/aks-template.json
+          parameters: clusterName="${{  steps.create_deployment.outputs.cluster_name }}" appInsightsLocation="${{ steps.create_deployment.outputs.region }}" clusterLocation="${{ steps.create_deployment.outputs.region }}" agentCount="3" agentVMSize="Standard_B2ms" kubernetesVersion="${{ steps.create_deployment.outputs.version }}" httpApplicationRoutingEnabled="false" omsLocation="${{ steps.create_deployment.outputs.region }}" omsWorkspaceName="tug-kube"  dnsPrefix="${{steps.create_deployment.outputs.cluster_name }}"
