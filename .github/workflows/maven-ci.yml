@@ -6,7 +6,7 @@ on:
       - 'dependabot/**'
 
 env:
-  AZ_RESOURCE_GROUP: "tgrall"
+  AZ_RESOURCE_GROUP: "tgrall-demo"
   AZ_CLUSTER_NAME: "tug-kube"
   NAMESPACE_DEV: "development"
   NAMESPACE_STAGING: "staging"
