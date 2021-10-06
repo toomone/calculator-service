@@ -10,4 +10,4 @@ This application is depoyed to Kubernetes (AKS) using GitHub Actions.
 
 ---
 
-Copyright 2021
+Copyright 2021-2021
