@@ -1,0 +1,38 @@
+name: " 🔩 - Create/Delete Kube Namespace"
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Namespace'
+        required: true
+        default: 'dev-demo'
+
+env:
+  AZ_RESOURCE_GROUP: "tgrall-demo"
+  AZ_CLUSTER_NAME: "tug-kube"
+
+jobs:
+
+  kube_namespace:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+      # login to azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS Credentials
+        id: getContext
+        run: |
+          az aks get-credentials --resource-group ${{ env.AZ_RESOURCE_GROUP }} --name ${{ env.AZ_CLUSTER_NAME }} --file $GITHUB_WORKSPACE/kubeconfig
+          echo "KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig" >> $GITHUB_ENV
+
+      - name: Create namespace
+        if: ${{ github.ref != 'refs/heads/main' }}
+        id: applyDeploymentDevelopment
+        run: |
+          kubectl create namespace dev-demo
