@@ -32,7 +32,6 @@ jobs:
           echo "KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig" >> $GITHUB_ENV
 
       - name: Create namespace
-        if: ${{ github.ref != 'refs/heads/main' }}
-        id: applyDeploymentDevelopment
+        id: createNameSpace
         run: |
           kubectl create namespace dev-demo
