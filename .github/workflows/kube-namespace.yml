@@ -16,9 +16,9 @@ jobs:
 
   kube_namespace:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
+    
+    steps:
+  
       # login to azure
       - name: Login to Azure
         uses: azure/login@v1
