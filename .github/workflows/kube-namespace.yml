@@ -14,6 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"    
   
       # login to azure
       - name: Login to Azure
