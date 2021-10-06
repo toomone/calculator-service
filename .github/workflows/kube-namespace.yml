@@ -1,6 +1,11 @@
 name: " 🔩 - Create/Delete Kube Namespace"
 
 on:
+
+  pull_request:
+    types: [opened, reopened, closed]
+
+
   workflow_dispatch:
     inputs:
       namespace:
@@ -38,4 +43,4 @@ jobs:
       - name: Create namespace
         id: createNameSpace
         run: |
-          kubectl ${{ github.event.inputs.action }} namespace ${{ github.event.inputs.namespace }}
+          kubectl ${{ github.event.inputs.action }} namespace ${{ github.event.inputs.namespace }}-pr-${{github.event.number}}
