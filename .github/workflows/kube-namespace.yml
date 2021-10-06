@@ -7,6 +7,7 @@ on:
 env:
   AZ_RESOURCE_GROUP: "tgrall-demo"
   AZ_CLUSTER_NAME: "tug-kube"
+  ACTION: "create"
 
 jobs:
 
@@ -14,6 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+
+      # control if the workflow should create or delete the kubernetes namespace
+      # - created when PR is opened or reopened
+      # - delete when PR is closed
+      - name: Set env ACTION
+        run: |
+          if [[ $GITHUB_EVENT_NAME == 'closed' ]]; then
+              echo "ACTION=delete" >> "$GITHUB_ENV"
+          fi
 
       - name: Branch name
         run: "echo running on branch ${{github.head_ref}}"
@@ -39,4 +49,4 @@ jobs:
       - name: Create namespace
         id: createNameSpace
         run: |
-          kubectl create namespace dev-pr-${{ github.head_ref }}
+          kubectl ${{ env.ACTION }} namespace dev-pr-${{ github.head_ref }}
