@@ -16,7 +16,7 @@ jobs:
     steps:
 
       - name: Branch name
-        run: echo running on branch ${GITHUB_REF##*/}
+        run: "echo running on branch ${$ github.head_ref }}"
 
       - name: Dump GitHub context
         env:
@@ -39,4 +39,4 @@ jobs:
       - name: Create namespace
         id: createNameSpace
         run: |
-          kubectl create namespace dev-pr-${{github.event.number}}
+          kubectl create namespace dev-pr-${{ github.head_ref }}
