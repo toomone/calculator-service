@@ -3,10 +3,14 @@ name: " 🔩 - Create/Delete Kube Namespace"
 on:
   workflow_dispatch:
     inputs:
-      name:
+      namespace:
         description: 'Namespace'
         required: true
         default: 'dev-demo'
+      action:
+        description: 'Action'
+        required: true
+        default: 'create'
 
 env:
   AZ_RESOURCE_GROUP: "tgrall-demo"
@@ -34,4 +38,4 @@ jobs:
       - name: Create namespace
         id: createNameSpace
         run: |
-          kubectl create namespace dev-demo
+          kubectl ${{ github.event.inputs.action }} namespace ${{ github.event.inputs.namespace }}
