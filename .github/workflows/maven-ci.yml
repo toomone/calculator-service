@@ -108,8 +108,10 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ steps.short-sha.outputs.sha }}
 
-  deploy_to_kubernetes:
+  deploy_to_development:
     needs: build_publish_container
+    environment: 
+      name: development        
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -142,7 +144,7 @@ jobs:
         run: |
           echo "DEV_NS=dev-pr-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Deploy to Development
+      - name: "🌩️ - Deploy to Development"
         if: ${{ github.ref != 'refs/heads/main' }}
         id: applyDeploymentDevelopment
         run: |
@@ -150,20 +152,85 @@ jobs:
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
           kubectl apply -f ./kubernetes/deployment.yml --namespace=$DEV_NS
           echo "🏁 - Service ${{ github.repository }} update in ${{ env.DEV_NS }} "
+          
+  deploy_to_staging:
+    needs: build_publish_container
+    environment: 
+      name: staging        
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
-      - name: Deploy to Stage
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      # login to azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS Credentials
+        id: getContext
+        run: |
+          az aks get-credentials --resource-group ${{ env.AZ_RESOURCE_GROUP }} --name ${{ env.AZ_CLUSTER_NAME }} --file $GITHUB_WORKSPACE/kubeconfig
+          echo "KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig" >> $GITHUB_ENV
+
+      - name: Short SHA
+        uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 8
+
+      - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
+
+      - name: "🌩️ - Deploy to Stage"
+        if: ${{ github.ref == 'refs/heads/main' }}
         id: applyDeploymentStage
         run: |
             kubectl create namespace $NAMESPACE_STAGING --dry-run=client -o json | kubectl apply -f -          
             sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml  
             kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_STAGING }}
             echo "🏁 - Service ${{ github.repository }} update in ${{ env.NAMESPACE_STAGING }} "
+          
+  deploy_to_production:
+    needs: build_publish_container
+    environment: 
+      name: production        
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
-      - name: Deploy to Production
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      # login to azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS Credentials
+        id: getContext
+        run: |
+          az aks get-credentials --resource-group ${{ env.AZ_RESOURCE_GROUP }} --name ${{ env.AZ_CLUSTER_NAME }} --file $GITHUB_WORKSPACE/kubeconfig
+          echo "KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig" >> $GITHUB_ENV
+
+      - name: Short SHA
+        uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 8
+
+      - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
+      
+      - name: "🌩️ - Deploy to Production"
         if: ${{ github.ref == 'refs/heads/main' }}
         id: applyDeploymentProduction
         run: |
           kubectl create namespace $NAMESPACE_PROD --dry-run=client -o json | kubectl apply -f -                  
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
           kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_PROD }}
-          echo "🏁 - Service ${{ github.repository }} update in ${{ env.NAMESPACE_PROD }} "
+          echo "🏁 - Service ${{ github.repository }} update in ${{ env.NAMESPACE_PROD }} "          
