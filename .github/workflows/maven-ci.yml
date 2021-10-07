@@ -138,12 +138,17 @@ jobs:
 
       - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
 
+      - name: Set namespace
+        run: |
+          echo "DEV_NS=dev-pr-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
       - name: Deploy to Development
         if: ${{ github.ref != 'refs/heads/main' }}
         id: applyDeploymentDevelopment
         run: |
+          kubectl create namespace $DEV_NS --dry-run=client -o json | kubectl apply -f -  
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
-          kubectl apply -f ./kubernetes/deployment.yml --namespace=dev-pr-${GITHUB_REF##*/}
+          kubectl apply -f ./kubernetes/deployment.yml --namespace=$DEV_NS
 
       - name: Deploy to Production
         if: ${{ github.ref == 'refs/heads/main' }}
