@@ -7,7 +7,6 @@ on:
 env:
   AZ_RESOURCE_GROUP: "tgrall-demo"
   AZ_CLUSTER_NAME: "tug-kube"
-  ACTION: "create"
 
 jobs:
 
@@ -16,24 +15,6 @@ jobs:
     
     steps:
 
-      # control if the workflow should create or delete the kubernetes namespace
-      # - created when PR is opened or reopened
-      # - delete when PR is closed
-      - name: Set env ACTION
-        run: |
-          if [[ $GITHUB_EVENT_NAME == 'closed' ]]; then
-              echo "ACTION=delete" >> "$GITHUB_ENV"
-          fi
-
-      - name: Branch name
-        run: "echo running on branch ${{github.head_ref}}"
-
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo "$GITHUB_CONTEXT"    
-  
       # login to azure
       - name: Login to Azure
         uses: azure/login@v1
@@ -45,8 +26,15 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ env.AZ_RESOURCE_GROUP }} --name ${{ env.AZ_CLUSTER_NAME }} --file $GITHUB_WORKSPACE/kubeconfig
           echo "KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig" >> $GITHUB_ENV
-
-      - name: Create namespace
+          
+      
+      - name : Create Kube Namespace
+        if: ${{github.event.action == 'opened' || github.event.action == 'reopened' }}
         id: createNameSpace
         run: |
-          kubectl ${{ env.ACTION }} namespace dev-pr-${{ github.head_ref }}
+          kubectl create namespace dev-pr-${{ github.head_ref }}
+  
+      - name : Delete Kube Namespace
+        if: ${{github.event.action == 'closed' }}
+        run: |
+          kubectl delete namespace dev-pr-${{ github.head_ref }}
