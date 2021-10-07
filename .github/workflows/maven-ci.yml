@@ -143,7 +143,7 @@ jobs:
         id: applyDeploymentDevelopment
         run: |
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
-          kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_DEV }}
+          kubectl apply -f ./kubernetes/deployment.yml --namespace=dev-pr-${GITHUB_REF##*/}
 
       - name: Deploy to Production
         if: ${{ github.ref == 'refs/heads/main' }}
