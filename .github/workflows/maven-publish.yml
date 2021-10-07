@@ -30,6 +30,13 @@ jobs:
         run: |
           mvn -B package --file pom.xml -Dmaven.test.skip=true
 
+      - name: GitHub Container Registry Login
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: octodemobo
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and Push Container
         id: container_publish
         uses: docker/build-push-action@v2
