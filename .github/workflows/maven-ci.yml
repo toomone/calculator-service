@@ -25,6 +25,7 @@ jobs:
         
   build:
     name: "🚧 - Build & Test"
+    needs: hello    
     runs-on: ubuntu-latest
 
     steps:
