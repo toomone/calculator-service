@@ -13,8 +13,18 @@ env:
   NAMESPACE_PROD: "production"
 
 jobs:
+
+  hello:
+    name: "👋 - Starting"
+    runs-on: ubuntu-latest  
+    steps:
+    - name: Starting
+      id: init
+      run: |
+        echo "Starting CI/CD of ${{ github.repository }}"      
+        
   build:
-    name: Build with Maven
+    name: "🚧 - Build & Test"
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +70,7 @@ jobs:
           path: target/calculator-service-*.jar
 
   build_publish_container:
-    name: Build Container
+    name: "🐳 - Push container image to GitHub Packages"
 
     # Do not run this on dependabot triggered activities as it cannot read the Actions Secrets.
     if: ${{ !(contains(github.actor, 'dependabot[bot]')) }}
@@ -109,6 +119,8 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ steps.short-sha.outputs.sha }}
 
   deploy_to_development:
+    name: "🌩️ - Deploy to Kubernetes: Development"
+  
     needs: build_publish_container
     environment: 
       name: development        
@@ -154,6 +166,7 @@ jobs:
           echo "🏁 - Service ${{ github.repository }} update in ${{ env.DEV_NS }} "
           
   deploy_to_staging:
+    name: "🌩️ - Deploy to Kubernetes: Staging"
     needs: build_publish_container
     environment: 
       name: staging        
@@ -195,6 +208,7 @@ jobs:
             echo "🏁 - Service ${{ github.repository }} update in ${{ env.NAMESPACE_STAGING }} "
           
   deploy_to_production:
+    name: "🌩️ - Deploy to Kubernetes: Production"  
     needs: build_publish_container
     environment: 
       name: production        
