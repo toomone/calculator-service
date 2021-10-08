@@ -168,6 +168,7 @@ jobs:
           
   deploy_to_staging:
     name: "🌩️ - Deploy to Kubernetes: Staging"
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: build_publish_container
     environment: 
       name: staging        
@@ -211,6 +212,7 @@ jobs:
   deploy_to_production:
     name: "🌩️ - Deploy to Kubernetes: Production"  
     needs: build_publish_container
+    if: ${{ github.ref == 'refs/heads/main' }}
     environment: 
       name: production        
     runs-on: ubuntu-latest
@@ -242,7 +244,6 @@ jobs:
       - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
       
       - name: "🌩️ - Deploy to Production"
-        if: ${{ github.ref == 'refs/heads/main' }}
         id: applyDeploymentProduction
         run: |
           kubectl create namespace $NAMESPACE_PROD --dry-run=client -o json | kubectl apply -f -                  
