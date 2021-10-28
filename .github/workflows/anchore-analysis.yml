@@ -21,12 +21,6 @@ jobs:
     - name: Checkout the code
       uses: actions/checkout@v2
 
-    - name: Get Jar file artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: calculator-service.jar
-        path: target
-
     - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
 
     - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
