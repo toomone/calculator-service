@@ -7,12 +7,13 @@
 name: Anchore Container Scan
 
 on:
-  # Trigger container scanning on completion of workflows that build containers
-  workflow_run:
-    workflows:
-      - "Build-Push-Deploy"
-    types:
-      - completed
+  workflow_dispatch:
+#   # Trigger container scanning on completion of workflows that build containers
+#   workflow_run:
+#     workflows:
+#       - "Build-Push-Deploy"
+#     types:
+#       - completed
 
 jobs:
   Anchore-Build-Scan:
