@@ -119,9 +119,11 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ steps.short-sha.outputs.sha }}
 
+  # Deploy to the development namespace
+  #   the namespace is generated and created from the feature branch name
   deploy_to_development:
     name: "🌩️ - Deploy to Kubernetes: Development"
-  
+    if: ${{ github.ref != 'refs/heads/main' }}
     needs: build_publish_container
     environment: 
       name: development        

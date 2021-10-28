@@ -27,13 +27,12 @@ jobs:
         name: calculator-service.jar
         path: target
 
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag localbuild/testimage:latest
-    
+    - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
+
     - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
       uses: anchore/scan-action@main
       with:
-        image: "localbuild/testimage:latest"
+        image: ghcr.io/${{ github.repository }}:${{ steps.short-sha.outputs.sha }}
         acs-report-enable: true
     
     - name: Upload Anchore Scan Report
