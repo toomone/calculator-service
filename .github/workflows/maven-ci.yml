@@ -1,4 +1,4 @@
-name: " 🚧  - Java CI with Maven"
+name: "Build-Push-Deploy"
 
 on:
   push:
