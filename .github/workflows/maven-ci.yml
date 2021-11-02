@@ -26,7 +26,7 @@ jobs:
   build:
     name: "🚧 - Build & Test"
     needs: hello    
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  
 
     steps:
       - name: Checkout
@@ -166,7 +166,11 @@ jobs:
           kubectl create namespace $DEV_NS --dry-run=client -o json | kubectl apply -f -  
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
           kubectl apply -f ./kubernetes/deployment.yml --namespace=$DEV_NS
-          echo "🏁 - Service ${{ github.repository }} update in ${{ env.DEV_NS }} "
+          IP_SERVICE=$(kubectl get services -n ${{ env.DEV_NS }}  -o json | jq -r '.items[] | .status.loadBalancer?|.ingress[]?|.ip')
+          echo "IP_SERVICE=$IP_SERVICE" >> $GITHUB_ENV
+          echo "🏁 - Service ${{ github.repository }} update in $DEV_NS : http://$IP_SERVICE:8080 "
+       
+          
           
   deploy_to_staging:
     name: "🌩️ - Deploy to Kubernetes: Staging"
@@ -209,7 +213,9 @@ jobs:
             kubectl create namespace $NAMESPACE_STAGING --dry-run=client -o json | kubectl apply -f -          
             sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml  
             kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_STAGING }}
-            echo "🏁 - Service ${{ github.repository }} update in ${{ env.NAMESPACE_STAGING }} "
+            IP_SERVICE=$(kubectl get services -n ${{ env.NAMESPACE_STAGING }}  -o json | jq -r '.items[] | .status.loadBalancer?|.ingress[]?|.ip')
+            echo "IP_SERVICE=$IP_SERVICE" >> $GITHUB_ENV
+            echo "🏁 - Service ${{ github.repository }} update in $NAMESPACE_STAGING : http://$IP_SERVICE:8080 "
           
   deploy_to_production:
     name: "🌩️ - Deploy to Kubernetes: Production"  
@@ -251,4 +257,7 @@ jobs:
           kubectl create namespace $NAMESPACE_PROD --dry-run=client -o json | kubectl apply -f -                  
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
           kubectl apply -f ./kubernetes/deployment.yml --namespace=${{ env.NAMESPACE_PROD }}
-          echo "🏁 - Service ${{ github.repository }} update in ${{ env.NAMESPACE_PROD }} "          
+          IP_SERVICE=$(kubectl get services -n ${{ env.NAMESPACE_PROD }}  -o json | jq -r '.items[] | .status.loadBalancer?|.ingress[]?|.ip')
+          echo "IP_SERVICE=$IP_SERVICE" >> $GITHUB_ENV
+          echo "🏁 - Service ${{ github.repository }} update in $NAMESPACE_PROD : http://$IP_SERVICE:8080 "
+
