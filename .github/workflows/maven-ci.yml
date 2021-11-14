@@ -127,6 +127,7 @@ jobs:
     needs: build_publish_container
     environment: 
       name: development        
+      url: ${{steps.kube-deploy.outputs.service-url}}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -161,7 +162,7 @@ jobs:
 
       - name: "🌩️ - Deploy to Development"
         if: ${{ github.ref != 'refs/heads/main' }}
-        id: applyDeploymentDevelopment
+        id: kube-deploy
         run: |
           kubectl create namespace $DEV_NS --dry-run=client -o json | kubectl apply -f -  
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
@@ -169,6 +170,8 @@ jobs:
           IP_SERVICE=$(kubectl get services -n ${{ env.DEV_NS }}  -o json | jq -r '.items[] | select(.metadata.name == "calculator-service") | .status.loadBalancer?|.ingress[]?|.ip')
           echo "IP_SERVICE=$IP_SERVICE" >> $GITHUB_ENV
           echo "🏁 - Service ${{ github.repository }} update in $DEV_NS : http://$IP_SERVICE:8080 "
+          echo "::set-output name=service-url::http://$IP_SERVICE:8080"
+
                
           
   deploy_to_staging:
@@ -177,6 +180,7 @@ jobs:
     needs: build_publish_container
     environment: 
       name: staging        
+      url: ${{steps.kube-deploy.outputs.service-url}}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -207,7 +211,7 @@ jobs:
 
       - name: "🌩️ - Deploy to Stage"
         if: ${{ github.ref == 'refs/heads/main' }}
-        id: applyDeploymentStage
+        id: kube-deploy
         run: |
             kubectl create namespace $NAMESPACE_STAGING --dry-run=client -o json | kubectl apply -f -          
             sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml  
@@ -215,6 +219,8 @@ jobs:
             IP_SERVICE=$(kubectl get services -n ${{ env.NAMESPACE_STAGING }}  -o json | jq -r '.items[] | select(.metadata.name == "calculator-service") | .status.loadBalancer?|.ingress[]?|.ip')
             echo "IP_SERVICE=$IP_SERVICE" >> $GITHUB_ENV
             echo "🏁 - Service ${{ github.repository }} update in $NAMESPACE_STAGING : http://$IP_SERVICE:8080 "
+            echo "::set-output name=service-url::http://$IP_SERVICE:8080"
+
           
   deploy_to_production:
     name: "🌩️ - Deploy to Kubernetes: Production"  
@@ -222,6 +228,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     environment: 
       name: production        
+      url: ${{steps.kube-deploy.outputs.service-url}}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -251,7 +258,7 @@ jobs:
       - run: echo "SHA8=${{ steps.short-sha.outputs.sha }}" >> $GITHUB_ENV
       
       - name: "🌩️ - Deploy to Production"
-        id: applyDeploymentProduction
+        id: kube-deploy
         run: |
           kubectl create namespace $NAMESPACE_PROD --dry-run=client -o json | kubectl apply -f -                  
           sed -i 's/COMMIT_SHA/${{env.SHA8}}/g' kubernetes/deployment.yml
@@ -259,4 +266,5 @@ jobs:
           IP_SERVICE=$(kubectl get services -n ${{ env.NAMESPACE_PROD }}  -o json | jq -r '.items[] | select(.metadata.name == "calculator-service") | .status.loadBalancer?|.ingress[]?|.ip')
           echo "IP_SERVICE=$IP_SERVICE" >> $GITHUB_ENV
           echo "🏁 - Service ${{ github.repository }} update in $NAMESPACE_PROD : http://$IP_SERVICE:8080 "
+          echo "::set-output name=service-url::http://$IP_SERVICE:8080"
 
