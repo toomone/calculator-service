@@ -61,6 +61,7 @@ jobs:
     name: "🐳 - Push container image to Azure Container Registry "
 
     runs-on: ubuntu-latest
+    environment: dev
 
     needs:
       - build
