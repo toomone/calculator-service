@@ -1,4 +1,4 @@
-name: "Build and MS defender scan the container"
+name: Build and MS defender scan the container
 
 on:
   push:
