@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get Jar file artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: calculator-service.jar
           path: target
